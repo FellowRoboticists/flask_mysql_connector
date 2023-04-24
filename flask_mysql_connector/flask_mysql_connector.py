@@ -1,16 +1,11 @@
 from typing import Dict, List, Union
 
 import pandas as pd
-from flask import Flask, current_app
+from flask import Flask, current_app, g
 from mysql.connector import MySQLConnection, connect
 from mysql.connector.cursor import MySQLCursor
 
 from .params import Params
-
-try:
-    from flask import _app_ctx_stack as _ctx_stack
-except ImportError:
-    from flask import _request_ctx_stack as _ctx_stack
 
 # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
 # key = mysql connect arg key, value = flask config key
@@ -91,17 +86,14 @@ class MySQL:
         return connect(**connect_args)
 
     def _teardown(self, _):
-        ctx = _ctx_stack.top
-        if hasattr(ctx, self._key):
-            getattr(ctx, self._key).close()
+        if g._flask_mysql_connector_connection:
+            g._flask_mysql_connector_connection.close()
 
     @property
     def connection(self) -> MySQLConnection:
-        ctx = _ctx_stack.top
-        if ctx is not None:
-            if not hasattr(ctx, self._key):
-                setattr(ctx, self._key, self._connect())
-            return getattr(ctx, self._key)
+        if not g._flask_mysql_connector_connection:
+            g._flask_mysql_connector_connection = self._connect()
+        return g._flask_mysql_connector_connection
 
     def new_cursor(self, **kwargs) -> MySQLCursor:
         conn = self.connection

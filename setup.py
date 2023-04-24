@@ -7,7 +7,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 
 setup(
     name='flask_mysql_connector',
-    version='1.1.1',
+    version='1.1.2',
     url='https://github.com/brandenc40/flask_mysql_connector',
     license='MIT',
     author='Branden Colen',
