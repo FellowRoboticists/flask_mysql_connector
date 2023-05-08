@@ -86,12 +86,12 @@ class MySQL:
         return connect(**connect_args)
 
     def _teardown(self, _):
-        if g._flask_mysql_connector_connection:
+        if g.get('_flask_mysql_connector_connection'):
             g._flask_mysql_connector_connection.close()
 
     @property
     def connection(self) -> MySQLConnection:
-        if not g._flask_mysql_connector_connection:
+        if not g.get('_flask_mysql_connector_connection'):
             g._flask_mysql_connector_connection = self._connect()
         return g._flask_mysql_connector_connection
 
